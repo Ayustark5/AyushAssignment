@@ -39,6 +39,9 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_toStartOf="@id/logoCard"
             android:layout_marginBottom="20dp"
             android:textColor="@color/white"
             android:textSize="36sp"
@@ -56,6 +59,7 @@
 
             <ImageView
                 android:id="@+id/logo"
+                android:contentDescription="@string/app_logo"
                 android:layout_width="100dp"
                 android:layout_height="100dp" />
 

@@ -18,4 +18,15 @@
     <string name="_0">0</string>
     <string name="cart">Cart</string>
     <string name="profile">Profile</string>
+    <string name="cost_for_one">Cost for one: ₹ %1$s</string>
+    <string name="place_order">Place Order(Total: Rs. %1$d)</string>
+    <string name="item_serial">%1$d</string>
+    <string name="item_cost">₹ %1$s</string>
+    <string name="logoimage_animation">LogoImage Animation</string>
+    <string name="app_logo">App logo</string>
+    <string name="user_image">User Image</string>
+    <string name="button_to_decrease_quantity">Button to decrease quantity</string>
+    <string name="button_to_add_quantity">Button to add quantity</string>
+    <string name="incorrect_creds">Incorrect Credentials</string>
+    <string name="some_error_occurred">Some Error Occurred</string>
 </resources>

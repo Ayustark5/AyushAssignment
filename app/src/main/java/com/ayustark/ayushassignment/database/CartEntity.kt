@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity("cart_tb")
 class CartEntity {
 
-    @PrimaryKey()
+    @PrimaryKey
     var id: String = ""
 
     var costForOne: String = "0"

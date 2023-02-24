@@ -1,7 +1,9 @@
 package com.ayustark.ayushassignment.repositories
 
+import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import com.ayustark.ayushassignment.R
 import com.ayustark.ayushassignment.database.CartEntity
 import com.ayustark.ayushassignment.database.SwaadDatabase
 import com.ayustark.ayushassignment.database.UserEntity
@@ -13,6 +15,7 @@ import com.ayustark.ayushassignment.utils.Constants
 import com.ayustark.ayushassignment.utils.Resource
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
@@ -22,6 +25,7 @@ import javax.inject.Singleton
 
 @Singleton
 class RepositoryImpl @Inject constructor(
+    private val context: Context,
     private val api: ApiService,
     private val sharedPreferences: SharedPreferences,
     private val swaadDatabase: SwaadDatabase
@@ -41,7 +45,7 @@ class RepositoryImpl @Inject constructor(
                 Resource.Error("No user found!! Try Again!!")
         } catch (e: Exception) {
             Log.e("LoginResponse", e.message.toString())
-            Resource.Error("Some Error Occurred")
+            Resource.Error(context.getString(R.string.some_error_occurred))
         }
 
     override suspend fun createUser(userEntity: UserEntity) =
@@ -54,7 +58,7 @@ class RepositoryImpl @Inject constructor(
             )
         } catch (e: Exception) {
             Log.e("RegisterResponse", e.message.toString())
-            Resource.Error("Some Error Occurred")
+            Resource.Error(context.getString(R.string.some_error_occurred))
         }
 
     override suspend fun getCurrentUser() =
@@ -71,7 +75,7 @@ class RepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             Log.e("GetCurrentUserResponse", e.message.toString())
-            Resource.Error("Some Error Occurred")
+            Resource.Error(context.getString(R.string.some_error_occurred))
         }
 
     override suspend fun updateCartItem(item: CartEntity) =
@@ -87,7 +91,7 @@ class RepositoryImpl @Inject constructor(
             )
         } catch (e: Exception) {
             Log.e("UpdateCartResponse", e.message.toString())
-            Resource.Error("Some Error Occurred")
+            Resource.Error(context.getString(R.string.some_error_occurred))
         }
 
     override suspend fun getCartItems() =
@@ -97,13 +101,13 @@ class RepositoryImpl @Inject constructor(
             Resource.Success(response)
         } catch (e: Exception) {
             Log.e("GetCartResponse", e.message.toString())
-            Resource.Error("Some Error Occurred", listOf())
+            Resource.Error(context.getString(R.string.some_error_occurred), listOf())
         }
 
     override suspend fun emptyCart() =
         try {
             val response = swaadDatabase.cartDao().emptyCart()
-            Log.d("EmptyCartResponse", "${response}")
+            Log.d("EmptyCartResponse", "$response")
             Resource.Success(response)
         } catch (e: Exception) {
             Log.e("EmptyCartResponse", e.message.toString())
@@ -129,9 +133,10 @@ class RepositoryImpl @Inject constructor(
 }
 
 suspend inline fun <reified T> handleApiResponse(
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
     crossinline apiCall: suspend () -> Response<T>
 ): Resource<T> {
-    return withContext(Dispatchers.IO) {
+    return withContext(dispatcher) {
         try {
             val response = apiCall.invoke()
             when {
@@ -149,12 +154,16 @@ suspend inline fun <reified T> handleApiResponse(
             }
         } catch (e: InterruptedIOException) {
             Log.e("ApiResponse", "Exception is ${e.message}", e)
-            Resource.Error(e.message!!, null, ApiError(ErrorData("Request timed out.", false)))
+            Resource.Error(
+                e.message ?: "ApiError",
+                null,
+                ApiError(ErrorData("Request timed out.", false))
+            )
         } catch (e: Exception) {
             when {
                 e.message != null -> {
                     Log.e("ApiResponse", "Exception is ${e.message}", e)
-                    Resource.Error(e.message!!, null)
+                    Resource.Error(e.message ?: "ApiError", null)
                 }
                 else -> {
                     Log.e("ApiResponse", "An unknown error occurred")
@@ -167,10 +176,8 @@ suspend inline fun <reified T> handleApiResponse(
 
 fun <T> handleApiError(response: Response<T>): Resource.Error<T> {
     val type = object : TypeToken<ApiError>() {}.type
-    val reader = response.errorBody()!!.charStream()
-//    Timber.e(jso)
+    val reader = response.errorBody()?.charStream()
     val floApiError: ApiError = Gson().fromJson(reader, type)
-//    floApiError?.code = response.code()
     Log.d("ApiError", "Passed $floApiError")
     val formattedMessage =
         "${floApiError.data.errorMessage})."

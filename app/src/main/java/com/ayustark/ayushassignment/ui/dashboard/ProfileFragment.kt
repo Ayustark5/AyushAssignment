@@ -2,6 +2,7 @@ package com.ayustark.ayushassignment.ui.dashboard
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,15 +16,14 @@ import com.google.android.material.snackbar.Snackbar
 
 class ProfileFragment : Fragment() {
 
-    private var binding: FragmentProfileBinding? = null
-    private val bind get() = binding!!
-    lateinit var viewModel: DashboardViewModel
+    private var bind: FragmentProfileBinding? = null
+    private var viewModel: DashboardViewModel? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentProfileBinding.inflate(layoutInflater, container, false)
+        bind = FragmentProfileBinding.inflate(layoutInflater, container, false)
         viewModel = ViewModelProvider(requireActivity())[DashboardViewModel::class.java]
         (activity as DashboardActivity).supportActionBar?.apply {
             title = "Profile"
@@ -31,56 +31,58 @@ class ProfileFragment : Fragment() {
         }
         subscribeToObservers()
         setupEventListeners()
-        viewModel.getUserDetails()
-        return binding?.root
+        viewModel?.getUserDetails()
+        return bind?.root
+    }
+
+    override fun onDestroyView() {
+        bind = null
+        super.onDestroyView()
     }
 
     private fun subscribeToObservers() {
-        viewModel.user.observe(viewLifecycleOwner) {
-            when (val user = it.getContentIfNotHandled()) {
+        viewModel?.user?.observe(viewLifecycleOwner) {
+            when (val userResponse = it.getContentIfNotHandled()) {
                 is Resource.Error -> {
-                    showSnackBar(user.message)
+                    showSnackBar(userResponse.message)
                 }
                 is Resource.Loading -> {
-
+                    Log.d("UserObserverResponse", "Loading")
                 }
                 is Resource.Success -> {
-                    if (user.data != null)
-                        setupUI(user.data)
+                    if (userResponse.data != null)
+                        setupUI(userResponse.data)
                     else
                         showSnackBar("Some Error Occurred")
                 }
                 null -> {
-
+                    Log.d("UserObserverResponse", "null")
                 }
             }
         }
     }
 
     private fun setupEventListeners() {
-        bind.logout.setOnClickListener {
-            viewModel.logout()
+        bind?.logout?.setOnClickListener {
+            viewModel?.logout()
             startActivity(Intent(context, AuthenticateActivity::class.java))
             activity?.finish()
         }
     }
 
     private fun setupUI(data: UserEntity) {
-        bind.name.text = data.name
-        bind.email.text = data.email
-        bind.mobile.text = data.mobile
-        bind.address.text = data.address
+        bind?.apply {
+            name.text = data.name
+            email.text = data.email
+            mobile.text = data.mobile
+            address.text = data.address
+        }
     }
 
     private fun showSnackBar(msg: String?) {
         if (msg != null) {
-            Snackbar.make(bind.root, msg, Snackbar.LENGTH_SHORT).show()
+            bind?.let { Snackbar.make(it.root, msg, Snackbar.LENGTH_SHORT).show() }
         }
-    }
-
-    override fun onDestroyView() {
-        binding = null
-        super.onDestroyView()
     }
 
 }

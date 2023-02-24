@@ -3,6 +3,7 @@ package com.ayustark.ayushassignment.ui.authenticate
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,48 +17,54 @@ import com.google.android.material.snackbar.Snackbar
 
 class RegistrationFragment : Fragment() {
 
-    private var binding: FragmentRegistrationBinding? = null
+    private var bind: FragmentRegistrationBinding? = null
 
-    private val bind get() = binding!!
-    private lateinit var viewModel: AuthenticateViewModel
+    private var viewModel: AuthenticateViewModel? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentRegistrationBinding.inflate(layoutInflater, container, false)
+        bind = FragmentRegistrationBinding.inflate(layoutInflater, container, false)
         viewModel = ViewModelProvider(requireActivity())[AuthenticateViewModel::class.java]
         subscribeToObservers()
         setOnEventListeners()
-        return binding?.root
+        return bind?.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        bind = null
     }
 
     private fun setOnEventListeners() {
-        bind.signIn.setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
-        bind.btnSignUp.setOnClickListener {
-            val user = UserEntity()
-            user.name = bind.nameLayout.editText!!.text.toString()
-            user.email = bind.emailLayout.editText!!.text.toString()
-            user.mobile = bind.mobileLayout.editText!!.text.toString()
-            user.password = bind.passLayout.editText!!.text.toString()
-            user.address = bind.addressLayout.editText!!.text.toString()
-            if (user.validate()) {
-                viewModel.createNewUser(user)
+        bind?.apply {
+            txtSignIn.setOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
+            btnSignUp.setOnClickListener {
+                val user = UserEntity()
+                user.name = nameLayout.editText?.text.toString()
+                user.email = emailLayout.editText?.text.toString()
+                user.mobile = mobileLayout.editText?.text.toString()
+                user.password = passLayout.editText?.text.toString()
+                user.address = addressLayout.editText?.text.toString()
+                if (user.validate()) {
+                    viewModel?.createNewUser(user)
+                }
             }
         }
     }
 
     private fun subscribeToObservers() {
-        viewModel.signUp.observe(viewLifecycleOwner) {
-            when (val content = it.getContentIfNotHandled()) {
+        viewModel?.signUp?.observe(viewLifecycleOwner) {
+            when (val signUpResponse = it.getContentIfNotHandled()) {
                 is Resource.Error -> {
-                    showSnackBar(content.message)
+                    showSnackBar(signUpResponse.message)
                 }
                 is Resource.Loading -> {
-
+                    Log.d("SignUpObserverResponse", "Loading")
                 }
                 is Resource.Success -> {
                     showSnackBar("Registration Successful")
@@ -65,7 +72,7 @@ class RegistrationFragment : Fragment() {
                     activity?.finish()
                 }
                 null -> {
-
+                    Log.d("SignUpObserverResponse", "null")
                 }
             }
         }
@@ -74,12 +81,7 @@ class RegistrationFragment : Fragment() {
 
     private fun showSnackBar(msg: String?) {
         if (msg != null) {
-            Snackbar.make(bind.root, msg, Snackbar.LENGTH_SHORT).show()
+            bind?.let { Snackbar.make(it.root, msg, Snackbar.LENGTH_SHORT).show() }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
     }
 }

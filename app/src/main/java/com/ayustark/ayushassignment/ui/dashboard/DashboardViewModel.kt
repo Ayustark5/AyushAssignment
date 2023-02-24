@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DashboardViewModel @Inject constructor(val repository: Repository) : ViewModel() {
+class DashboardViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
 
     private val _restaurant = MutableLiveData<Event<Resource<RestaurantResponse>>>()
     val restaurant: LiveData<Event<Resource<RestaurantResponse>>> = _restaurant

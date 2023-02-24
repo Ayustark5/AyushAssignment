@@ -10,18 +10,13 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class DashboardActivity : AppCompatActivity() {
 
-    private var binding: ActivityDashboardBinding? = null
-    private val bind get() = binding!!
+    private var bind: ActivityDashboardBinding? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityDashboardBinding.inflate(layoutInflater)
+        bind = ActivityDashboardBinding.inflate(layoutInflater)
         ViewModelProvider(this@DashboardActivity)[DashboardViewModel::class.java]
-        setupActionBar()
-        setContentView(binding?.root)
-    }
-
-    private fun setupActionBar() {
-        setSupportActionBar(bind.Toolbar)
+        setSupportActionBar(bind?.Toolbar)
+        setContentView(bind?.root)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -33,15 +28,4 @@ class DashboardActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    /*override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.profile_menu, menu)
-        return true
-    }*/
-
-    /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.profile -> supportFragmentManager.beginTransaction().addToBackStack("current").replace(R.id.navHost, ProfileFragment::class.java, null).commit()
-        }
-        return super.onOptionsItemSelected(item)
-    }*/
 }

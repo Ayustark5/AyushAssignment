@@ -3,6 +3,7 @@ package com.ayustark.ayushassignment.ui.authenticate
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
@@ -19,52 +20,58 @@ import com.google.android.material.snackbar.Snackbar
 
 class LoginFragment : Fragment() {
 
-    private var binding: FragmentLoginBinding? = null
+    private var bind: FragmentLoginBinding? = null
 
-    private val bind get() = binding!!
-    private lateinit var viewModel: AuthenticateViewModel
+    private var viewModel: AuthenticateViewModel? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = FragmentLoginBinding.inflate(layoutInflater, container, false)
+        bind = FragmentLoginBinding.inflate(layoutInflater, container, false)
         viewModel = ViewModelProvider(requireActivity())[AuthenticateViewModel::class.java]
         subscribeToObservers()
         setUpEventListeners()
-        return binding?.root
+        return bind?.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        bind = null
     }
 
     private fun setUpEventListeners() {
-        bind.signUp.setOnClickListener {
-            Navigation.findNavController(bind.root).navigate(R.id.login_to_registration)
-        }
-        bind.btnLogin.setOnClickListener {
-            val mobile = bind.mobileLayout.editText!!.text.toString()
-            val pass = bind.passLayout.editText!!.text.toString()
-            if (Patterns.PHONE.matcher(mobile).matches()) {
-                if (pass.length > 4) {
-                    viewModel.sendLoginRequest(LoginRequest(mobile, pass))
+        bind?.apply {
+            txtSignUp.setOnClickListener {
+                Navigation.findNavController(root).navigate(R.id.login_to_registration)
+            }
+            btnLogin.setOnClickListener {
+                val mobileNumberData = mobileLayout.editText?.text.toString()
+                val passwordData = passLayout.editText?.text.toString()
+                if (Patterns.PHONE.matcher(mobileNumberData).matches()) {
+                    if (passwordData.length > 4) {
+                        viewModel?.sendLoginRequest(LoginRequest(mobileNumberData, passwordData))
+                    } else {
+                        passLayout.error = getString(R.string.incorrect_creds)
+                        mobileLayout.error = getString(R.string.incorrect_creds)
+                    }
                 } else {
-                    bind.passLayout.error = "Incorrect Credentials"
-                    bind.mobileLayout.error = "Incorrect Credentials"
+                    passLayout.error = getString(R.string.incorrect_creds)
+                    mobileLayout.error = getString(R.string.incorrect_creds)
                 }
-            } else {
-                bind.passLayout.error = "Incorrect Credentials"
-                bind.mobileLayout.error = "Incorrect Credentials"
             }
         }
     }
 
     private fun subscribeToObservers() {
-        viewModel.login.observe(viewLifecycleOwner) {
-            when (val content = it.getContentIfNotHandled()) {
+        viewModel?.login?.observe(viewLifecycleOwner) {
+            when (val loginResponse = it.getContentIfNotHandled()) {
                 is Resource.Error -> {
-                    showSnackBar(content.message)
+                    showSnackBar(loginResponse.message)
                 }
                 is Resource.Loading -> {
-
+                    Log.d("LoginObserverResponse", "Loading")
                 }
                 is Resource.Success -> {
                     showSnackBar("Login Successful")
@@ -72,7 +79,7 @@ class LoginFragment : Fragment() {
                     activity?.finish()
                 }
                 null -> {
-
+                    Log.d("LoginObserverResponse", "null")
                 }
             }
         }
@@ -80,12 +87,7 @@ class LoginFragment : Fragment() {
 
     private fun showSnackBar(msg: String?) {
         if (msg != null) {
-            Snackbar.make(bind.root, msg, Snackbar.LENGTH_SHORT).show()
+            bind?.let { Snackbar.make(it.root, msg, Snackbar.LENGTH_SHORT).show() }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
     }
 }

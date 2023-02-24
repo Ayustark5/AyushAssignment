@@ -9,7 +9,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class AuthenticateActivity : AppCompatActivity() {
     private var binding: ActivityAuthenticateBinding? = null
-    private val bind get() = binding!!
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAuthenticateBinding.inflate(layoutInflater)

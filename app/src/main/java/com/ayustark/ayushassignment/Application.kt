@@ -1,4 +1,4 @@
-package com.ayustark.assignment
+package com.ayustark.ayushassignment
 
 import android.content.Context
 import dagger.hilt.android.HiltAndroidApp

@@ -7,12 +7,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.ayustark.ayushassignment.R
 import com.ayustark.ayushassignment.database.CartEntity
 import com.ayustark.ayushassignment.databinding.ItemMenuBinding
 import com.ayustark.ayushassignment.network.responses.MenuDataX
 import com.ayustark.ayushassignment.ui.dashboard.DashboardViewModel
 
-class MenuAdapter(val context: Context, val cartList: ArrayList<CartEntity>?) :
+class MenuAdapter(private val context: Context, private val cartList: ArrayList<CartEntity>?) :
     RecyclerView.Adapter<MenuAdapter.MenuViewHolder>() {
 
     private var viewModel: DashboardViewModel =
@@ -43,8 +44,8 @@ class MenuAdapter(val context: Context, val cartList: ArrayList<CartEntity>?) :
             bind.quantity.text = menu.quantity.toString()
         }
         bind.txtFoodName.text = menu.name
-        bind.txtSerial.text = "${position + 1}"
-        bind.txtFoodPrice.text = "₹ ${menu.costForOne}"
+        bind.txtSerial.text = context.getString(R.string.item_serial, position + 1)
+        bind.txtFoodPrice.text = context.getString(R.string.item_cost, menu.costForOne)
         bind.btnAdd.setOnClickListener {
             bind.btnAdd.visibility = View.GONE
             bind.quantityLayout.visibility = View.VISIBLE

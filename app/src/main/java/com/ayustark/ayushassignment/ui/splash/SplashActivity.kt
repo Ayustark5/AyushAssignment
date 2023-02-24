@@ -21,20 +21,18 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
-    private var binding: ActivitySplashBinding? = null
-    private val bind
-        get() = binding!!
+    private var bind: ActivitySplashBinding? = null
 
     @Inject
     lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySplashBinding.inflate(layoutInflater)
+        bind = ActivitySplashBinding.inflate(layoutInflater)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(binding?.root)
-        bind.logo.setBackgroundResource(R.drawable.logo_animation)
-        val anim = bind.logo.background as AnimationDrawable
+        setContentView(bind?.root)
+        bind?.imgLogo?.setBackgroundResource(R.drawable.logo_animation)
+        val anim = bind?.imgLogo?.background as AnimationDrawable
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 anim.start()
@@ -51,4 +49,5 @@ class SplashActivity : AppCompatActivity() {
             finish()
         }
     }
+
 }

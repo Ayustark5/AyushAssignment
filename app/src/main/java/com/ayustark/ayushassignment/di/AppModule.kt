@@ -37,10 +37,11 @@ object AppModule {
     @Singleton
     @Provides
     fun providesRepository(
+        @ApplicationContext context: Context,
         api: ApiService,
         sharedPreferences: SharedPreferences,
         swaadDatabase: SwaadDatabase
-    ): Repository = RepositoryImpl(api, sharedPreferences, swaadDatabase)
+    ): Repository = RepositoryImpl(context, api, sharedPreferences, swaadDatabase)
 
     @Singleton
     @Provides
@@ -54,9 +55,9 @@ object AppModule {
     fun providesSharedPreferences(
         @ApplicationContext context: Context
     ): SharedPreferences = EncryptedSharedPreferences.create(
-        "user",
-        MasterKey.DEFAULT_MASTER_KEY_ALIAS,
         context,
+        "user",
+        MasterKey(context, MasterKey.DEFAULT_MASTER_KEY_ALIAS),
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
